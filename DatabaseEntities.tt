@@ -1,0 +1,42 @@
+﻿<#@ template debug="true" hostSpecific="true" #>
+<#@ output extension=".cs" #>
+<#@ Assembly Name="System.Core" #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.Reflection" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Diagnostics" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Collections" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#
+	var listOfEntities = new string[] { "Achievement", "Building", "Event", "Item", "ItemCategory", "Level", 
+		"MailBox", "Message", "MissionObjective", "News", "Quest", "Rank", "User" };
+#>//Dynamic generation... Do not edit! Instead - edit *.tt file!
+using System.Collections.ObjectModel;
+using TrafficGame.Assemblies.Database.Entities;
+
+namespace TrafficGame.Assemblies.Database
+{
+	public class DatabaseEntities : DatabaseContext
+	{
+		private readonly bool _isDebugBuild;
+		public DatabaseEntities(bool isDebugBuild) : base(isDebugBuild)
+		{
+			_isDebugBuild = isDebugBuild;
+		}
+<# foreach(var item in listOfEntities) { #>
+
+		private <#= item #>[] _<#= item.ToLower() #>s;
+		public ReadOnlyCollection<<#= item #>> <#= item #>s
+		{
+			get 
+			{
+				if (!_isDebugBuild)
+				{
+					_<#= item.ToLower() #>s = base.LoadAll<<#= item #>>();
+				}
+				return new ReadOnlyCollection<<#= item #>>(_<#= item.ToLower() #>s);
+			}
+		}
+<# } #>	}
+}
